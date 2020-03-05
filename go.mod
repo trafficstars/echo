@@ -1,4 +1,4 @@
-module github.com/labstack/echo
+module github.com/trafficstars/echo
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
