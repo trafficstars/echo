@@ -60,6 +60,10 @@ func (r *Response) Write(b []byte) (n int, err error) {
 	return
 }
 
+type sameSiteAccessor interface {
+	SameSite() string
+}
+
 // SetCookie implements `engine.Response#SetCookie` function.
 func (r *Response) SetCookie(c engine.Cookie) {
 	cookie := new(fasthttp.Cookie)
@@ -70,7 +74,37 @@ func (r *Response) SetCookie(c engine.Cookie) {
 	cookie.SetExpire(c.Expires())
 	cookie.SetSecure(c.Secure())
 	cookie.SetHTTPOnly(c.HTTPOnly())
+
+	if internalCookie, ok := c.(sameSiteAccessor); ok {
+		cookie.SetSameSite(sameSiteModeFromString(internalCookie.SameSite()))
+	}
+
 	r.Response.Header.SetCookie(cookie)
+}
+
+const (
+	sameSiteModeDisabled = "disabled"
+	sameSiteModeDefault  = "default"
+	sameSiteModeLax      = "lax"
+	sameSiteModeStrict   = "strict"
+	sameSiteModeNone     = "none"
+)
+
+func sameSiteModeFromString(mode string) fasthttp.CookieSameSite {
+	switch mode {
+	case sameSiteModeDisabled:
+		return fasthttp.CookieSameSiteDisabled
+	case sameSiteModeDefault:
+		return fasthttp.CookieSameSiteDefaultMode
+	case sameSiteModeLax:
+		return fasthttp.CookieSameSiteLaxMode
+	case sameSiteModeStrict:
+		return fasthttp.CookieSameSiteStrictMode
+	case sameSiteModeNone:
+		return fasthttp.CookieSameSiteNoneMode
+	default:
+		return fasthttp.CookieSameSiteNoneMode
+	}
 }
 
 // Status implements `engine.Response#Status` function.
