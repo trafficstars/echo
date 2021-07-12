@@ -67,6 +67,8 @@ type sameSiteAccessor interface {
 // SetCookie implements `engine.Response#SetCookie` function.
 func (r *Response) SetCookie(c engine.Cookie) {
 	cookie := new(fasthttp.Cookie)
+	cookie.SetKey(c.Name())
+	cookie.SetValue(c.Value())
 	cookie.SetPath(c.Path())
 	cookie.SetDomain(c.Domain())
 	cookie.SetExpire(c.Expires())
@@ -76,7 +78,7 @@ func (r *Response) SetCookie(c engine.Cookie) {
 	if internalCookie, ok := c.(sameSiteAccessor); ok {
 		cookie.SetSameSite(sameSiteModeFromString(internalCookie.SameSite()))
 	}
-	
+
 	r.Response.Header.SetCookie(cookie)
 }
 
