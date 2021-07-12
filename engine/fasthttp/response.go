@@ -76,9 +76,7 @@ func (r *Response) SetCookie(c engine.Cookie) {
 	if internalCookie, ok := c.(sameSiteAccessor); ok {
 		cookie.SetSameSite(sameSiteModeFromString(internalCookie.SameSite()))
 	}
-
-	cookie.SetSecure(c.Secure())
-
+	
 	r.Response.Header.SetCookie(cookie)
 }
 
